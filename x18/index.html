@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="es">
+<head><link rel="icon" href="data:,">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>REDFLAG</title>
+<style>
+html,body{margin:0;padding:0;background:#000;color:#c9ae78;font-family:Georgia,"Times New Roman",serif;overflow-x:hidden;overflow-y:auto;-webkit-touch-callout:none}
+#wrap{max-width:900px;margin:0 auto;background:#000;text-align:center;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
+canvas{display:block;width:100%;height:auto;background:#000;touch-action:none;outline:none}
+#bar{display:flex;justify-content:space-between;align-items:center;padding:4px 8px;font-size:12px;color:#a08a5c;letter-spacing:1px;gap:8px}
+button{background:#000;color:#e0b34a;border:1px solid #6b4f1f;font:inherit;font-size:12px;padding:3px 10px;cursor:pointer;border-radius:2px}
+button:hover{border-color:#e0b34a;color:#ffe08a}
+#touch{position:relative;z-index:6;touch-action:none;-webkit-touch-callout:none;user-select:none;-webkit-user-select:none;display:none;align-items:center;justify-content:space-between;gap:10px;padding:8px 10px 2px}
+.touch #touch{display:flex}
+#stick{position:relative;flex:0 0 auto;width:150px;height:150px;border-radius:50%;border:4px solid #1a1008;background:rgba(220,196,140,0.55);box-shadow:0 5px 0 #6b4a26,0 0 0 2px #efe2bd;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
+#stick.on{filter:brightness(1.1)}
+#knob{position:absolute;left:50%;top:50%;width:62px;height:62px;margin:-31px 0 0 -31px;border-radius:50%;background:#e0b34a;border:4px solid #1a1008;pointer-events:none}
+#acts{display:flex;flex:1 1 auto;gap:8px;justify-content:flex-end;align-items:center}
+#touch button{flex:1 1 0;min-width:0;max-width:130px;min-height:88px;font-size:16px;letter-spacing:1px;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent;border-radius:12px;font-weight:bold;font-family:Georgia,"Times New Roman",serif;border:4px solid #1a1008;color:#1a1008;box-shadow:0 5px 0 #6b4a26,0 0 0 2px #efe2bd;pointer-events:auto}
+#bPunch{background:#e0b34a}
+#bKick{background:#dcc48c}
+#bJump{background:#efe2bd}
+#touch button.on,#touch button:active{transform:translateY(4px);box-shadow:0 1px 0 #6b4a26,0 0 0 2px #efe2bd;filter:brightness(1.08)}
+#musrow{position:relative;z-index:6;text-align:center;padding:6px 8px 0}
+#musbtn{min-height:38px;font-size:13px;padding:6px 14px;letter-spacing:1px;touch-action:manipulation}
+#mst{font-size:10px;letter-spacing:1px;padding:3px 0 0;color:#a08a5c}
+#wrap{position:relative}
+#wrap.isfs{max-width:none;width:100%;height:100%;margin:0;background:#000;overflow:hidden}
+#wrap.pfs{position:fixed;left:0;top:0;width:100%;height:100%;z-index:99999}
+#wrap:fullscreen{width:100%;height:100%}
+#wrap:-webkit-full-screen{width:100%;height:100%}
+#wrap.isfs canvas{position:absolute;left:0;top:0;width:100%;height:100%;object-fit:contain;background:#000}
+#wrap.isfs #touch{position:absolute;left:0;right:0;bottom:0;z-index:7;padding:6px 14px 12px;pointer-events:none}
+#wrap.isfs #touch>*{pointer-events:auto}
+#wrap.isfs #stick{opacity:0.72}
+#wrap.isfs #touch button{opacity:0.82;min-height:76px}
+#wrap.isfs #musrow{display:none}
+#wrap.isfs #bar{position:absolute;left:0;right:0;bottom:0;z-index:8;background:rgba(0,0,0,0.6);padding:3px 8px}
+.touch #wrap.isfs #bar{display:none}
+#bar .btns{white-space:nowrap}
+body.fsopen,html.fsopen{overflow:hidden}
+</style>
+</head>
+<body>
+<div id="ld" style="position:fixed;left:0;right:0;top:45%;text-align:center;font:bold 22px sans-serif;color:#ffe08a;z-index:9;pointer-events:none">CARGANDO REDFLAG...</div>
+<div id="wrap">
+<canvas id="c" width="900" height="420" tabindex="0" aria-label="REDFLAG - juego de peleas"></canvas>
+<div id="touch"><div id="stick"><div id="knob"></div></div><div id="acts"><button id="bPunch" type="button">GOLPE</button><button id="bKick" type="button">PATADA</button><button id="bJump" type="button">SALTO</button></div></div>
+<div id="musrow"><button id="musbtn" type="button">&#9834; ACTIVAR MUSICA</button><div id="mst">musica: cargando</div></div>
+<div id="bar"><span>FLECHAS/WASD = MOVER &nbsp; Z/J = GOLPE &nbsp; X/K = PATADA &nbsp; ESPACIO = SALTO &nbsp; ENTER = OK/TIENDA &nbsp; M = SONIDO &nbsp; F = PANTALLA COMPLETA</span><span class="btns"><button id="fsbtn" type="button">PANTALLA COMPLETA</button> <button id="snd" type="button">SONIDO: ON</button></span></div>
+<script id="musb64" type="application/octet-stream" data-src="assets/audio/musb64.ogg"></script>
+<script id="musb64m" type="application/octet-stream" data-src="assets/audio/musb64m.mp3"></script>
+<script id="sfx0" type="application/octet-stream" data-src="assets/audio/sfx0.ogg"></script>
+<script id="sfx1" type="application/octet-stream" data-src="assets/audio/sfx1.ogg"></script>
+<script id="sfx2" type="application/octet-stream" data-src="assets/audio/sfx2.ogg"></script>
+<script id="sfx3" type="application/octet-stream" data-src="assets/audio/sfx3.ogg"></script>
+<script id="sfx4" type="application/octet-stream" data-src="assets/audio/sfx4.ogg"></script>
+<script id="sfm0" type="application/octet-stream" data-src="assets/audio/sfm0.mp3"></script>
+<script id="sfm1" type="application/octet-stream" data-src="assets/audio/sfm1.mp3"></script>
+<script id="sfm2" type="application/octet-stream" data-src="assets/audio/sfm2.mp3"></script>
+<script id="sfm3" type="application/octet-stream" data-src="assets/audio/sfm3.mp3"></script>
+<script id="sfm4" type="application/octet-stream" data-src="assets/audio/sfm4.mp3"></script>
+<script type="application/json" id="asd" data-src="assets/sprites.json"></script>
+<script>
+/* x15: cargador del sitio (GitHub Pages): trae sprites y audio desde assets/ y luego arranca el juego */
+(function(){
+  var V="?v=d9614f0262";
+  function b64(buf){return new Promise(function(ok){var r=new FileReader();r.onload=function(){var s=String(r.result);ok(s.slice(s.indexOf(",")+1));};r.onerror=function(){ok("");};r.readAsDataURL(new Blob([buf]));});}
+  function fill(el){return fetch(el.getAttribute("data-src")+V).then(function(r){if(!r.ok)throw new Error(r.status);return r.arrayBuffer();}).then(b64).then(function(s){el.textContent=s;}).catch(function(){});}
+  var au=document.createElement("audio"),opus=!!(au.canPlayType&&au.canPlayType('audio/ogg; codecs="opus"'));
+  var ld=document.getElementById("ld");
+  var els=[].slice.call(document.querySelectorAll('script[type="application/octet-stream"][data-src]'));
+  var now=[],later=[];
+  els.forEach(function(el){var m=/m\d*$|b64m$/.test(el.id)&&/\.mp3$/.test(el.getAttribute("data-src"));(m===!opus?now:later).push(el);});
+  var asd=document.getElementById("asd");
+  var pj=fetch(asd.getAttribute("data-src")+V).then(function(r){return r.text();}).then(function(t){asd.textContent=t;});
+  Promise.all([pj].concat(now.map(fill))).then(function(){
+    var s=document.createElement("script");s.src="assets/game.js"+V;
+    s.onload=function(){if(ld)ld.style.display="none";later.forEach(fill);};
+    document.body.appendChild(s);
+  }).catch(function(e){if(ld)ld.textContent="Error cargando: "+e;});
+})();
+</script>
+</body>
+</html>
